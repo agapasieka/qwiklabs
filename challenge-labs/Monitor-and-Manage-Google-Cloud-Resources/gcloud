@@ -6,24 +6,24 @@ export REGION=
 export BUCKET=
 export USER=
 
-
-
 gsutil mb -l $REGION gs://$BUCKET
 
 gcloud projects add-iam-policy-binding $PROJECT_ID --member=user:$USER --role="roles/storage.objectViewer"
 
+
 Task 2. Create a Pub/Sub topic
 -------------------------------
-export TOPIC=travel-topic-235
+export TOPIC=
 
 gcloud pubsub topics create $TOPIC
+
 
 Task 3. Create the thumbnail Cloud Function
 ---------------------------------------------
 gcloud services enable run.googleapis.com
 gcloud services enable eventarc.googleapis.com
 
-export FUNCTION_NAME=travel-thumbnail-creator
+export FUNCTION_NAME=
 
 
 cat <<EOF > index.js
@@ -138,13 +138,11 @@ wget https://storage.googleapis.com/cloud-training/arc101/travel.jpg
 gcloud storage cp travel.jpg gs://$BUCKET 
 
 
+
 Task 4. Create an alerting policy
 ----------------------------------
 
-export ALERT_NAME="Active Cloud Function Instances"
-export ALERT_FILE=cloud_function_policy.json
-
-cat <<EOF > $ALERT_FILE 
+cat <<EOF > cloud_function_policy.json
 {
     "displayName": "Active Cloud Function Instances",
     "userLabels": {},
@@ -180,4 +178,4 @@ cat <<EOF > $ALERT_FILE
 EOF
 
 
-gcloud alpha monitoring policies create --policy-from-file=$ALERT_FILE
+gcloud alpha monitoring policies create --policy-from-file=cloud_function_policy.json
