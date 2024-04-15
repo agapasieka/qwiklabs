@@ -13,7 +13,12 @@ variable "region" {
   type        = string
 }
 
-variable "bucket" {
+variable "input-bucket" {
+  description = "bucket name"
+  type        = string
+}
+
+variable "cf-bucket" {
   description = "bucket name"
   type        = string
 }
