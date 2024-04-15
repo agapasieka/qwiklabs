@@ -8,6 +8,8 @@ LAb link: https://www.cloudskillsboost.google/games/4992/labs/32531
 4. Run terraform apply --auto-approve
 5. Fill out variable for bucket from TASK 1 and uplad a sample file called travel.jpg
      
-     export BUCKET=
+     export INPUT_BUCKET=
+   
      wget https://storage.googleapis.com/cloud-training/arc101/travel.jpg
-     gcloud storage cp travel.jpg gs://$BUCKET
+   
+     gcloud storage cp travel.jpg gs://$INPUT_BUCKET
