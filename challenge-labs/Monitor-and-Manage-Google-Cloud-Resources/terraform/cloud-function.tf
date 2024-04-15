@@ -3,6 +3,8 @@ resource "google_cloudfunctions_function" "function" {
   runtime     = "nodejs14"
   entry_point = "thumbnail"
 
-  trigger_bucket = google_storage_bucket.bucket.id
-
+  event_trigger {
+    event_type = "google.storage.object.finalize"
+    resource   = google_storage_bucket.bucket.name
+  }
 }
