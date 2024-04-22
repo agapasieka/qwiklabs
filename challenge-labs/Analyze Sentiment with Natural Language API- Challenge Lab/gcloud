@@ -1,1 +1,63 @@
+Task 1. Create an API key
+----------------------------
+
+gcloud services enable language.googleapis.com
+
+gcloud services enable apikeys.googleapis.com
+
+gcloud alpha services api-keys create --display-name="API key 1"
+
+  If 'Check my progress' won't turn green follow the steps to create API key in console
+  -------------------------------------------------------------------------------------
+  1. To create an API key, in the Cloud Console, select Navigation menu > APIs & Services > Credentials.
+
+  2. Click Create credentials and select API key.
+
+
+Task 2. Set up Google Docs and call the Natural Language API
+-------------------------------------------------------------
+Create a new Google Docs document https://docs.google.com/ and copy over the code from lab steps and click 'Check my progress'
+
+
+Task 3. Analyze syntax and parts of speech with the Natural Language API
+------------------------------------------------------------------------
+SSH to the VM instance
+
+export PROJECT_ID=$(gcloud config get-value project)
+export API_KEY=$(gcloud alpha services api-keys get-key-string "API key 1")
+
+cat > analyze-request.json <<EOF
+{
+  "document":{
+    "type":"PLAIN_TEXT",
+    "content": "Google, headquartered in Mountain View, unveiled the new Android phone at the Consumer Electronic Show.  Sundar Pichai said in his keynote that users love their new Android phones."
+  },
+  "encodingType": "UTF8"
+}
+EOF
+
+curl -s -H "Content-Type: application/json" \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+"https://language.googleapis.com/v1/documents:analyzeSyntax" \
+-d @analyze-request.json > analyze-response.txt
+
+
+Task 4. Perform multilingual natural language processing
+-----------------------------------------------------------
+cat > multi-nl-request.json <<EOF
+{
+  "document": {
+    "type": "PLAIN_TEXT",
+    "content": "Le bureau japonais de Google est situé à Roppongi Hills, Tokyo.",
+    "language": "fr"
+  }
+}
+
+EOF
+
+
+curl -s -H "Content-Type: application/json" \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+"https://language.googleapis.com/v1/documents:analyzeEntities" \
+-d @multi-nl-request.json > multi-response.txt
 
