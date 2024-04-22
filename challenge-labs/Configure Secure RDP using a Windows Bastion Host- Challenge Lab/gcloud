@@ -1,0 +1,57 @@
+Task 1. Create the VPC network
+----------------------------------
+
+export REGION=
+export ZONE=
+export NETWORK=securenetwork
+export SUBNET=subnet-$REGION
+
+gcloud config set project $DEVSHELL_PROJECT_ID
+
+gcloud compute networks create $NETWORK --subnet-mode=custom
+ 
+gcloud compute networks subnets create $SUBNET --network $NETWORK --region=$REGION --range=172.16.0.0/24
+ 
+
+gcloud compute firewall-rules create allow-rdp --direction=INGRESS --priority=1000 --network $NETWORK --action=ALLOW --rules=tcp:3389 --source-ranges=0.0.0.0/0 --target-tags=rdp-access
+
+Task 2. Deploy your Windows instances and configure user passwords
+------------------------------------------------------------------
+
+gcloud compute instances create vm-securehost \
+--zone $ZONE \
+--machine-type=e2-standard-2 \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET,no-address \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default,no-address \
+--create-disk=auto-delete=yes,boot=yes,device-name=vm-securehost,image=projects/windows-cloud/global/images/windows-server-2016-dc-v20240415,mode=rw,size=50,type=projects/$DEVSHELL_PROJECT_ID/zones/$ZONE/diskTypes/pd-balanced 
+
+
+
+gcloud compute instances create vm-bastionhost \
+--zone $ZONE \
+--machine-type=e2-standard-2 \
+--tags=rdp-access \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=$SUBNET \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=default,no-address \
+--create-disk=auto-delete=yes,boot=yes,device-name=vm-securehost,image=projects/windows-cloud/global/images/windows-server-2016-dc-v20240415,mode=rw,size=50,type=projects/$DEVSHELL_PROJECT_ID/zones/$ZONE/diskTypes/pd-balanced 
+
+
+Configure user passwords
+
+gcloud compute reset-windows-password vm-bastionhost --user app_admin --zone $ZONE
+
+gcloud compute reset-windows-password vm-securehost --user app_admin --zone $ZONE
+
+
+Task 3. Connect to the secure host and configure Internet Information Server
+----------------------------------------------------------------------------
+
+gcloud compute instances add-metadata vm-securehost \
+--zone $ZONE \
+--metadata=sysprep-specialize-script-ps1='Import-Module servermanager
+  Install-WindowsFeature Web-Server -IncludeAllSubFeature
+  "<html><body><p>Windows startup script added directly.</p></body></html>" > C:\inetpub\wwwroot\index.html'
+
+
+gcloud compute instances reset vm-securehost --zone $ZONE
+
