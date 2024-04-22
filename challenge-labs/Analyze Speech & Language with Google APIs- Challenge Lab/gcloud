@@ -1,1 +1,66 @@
+Task 1. Create an API key
+---------------------------
+gcloud services enable apikeys.googleapis.com
+
+gcloud alpha services api-keys create --display-name="API key 1"
+
+
+1. To create an API key, in the Cloud Console, select Navigation menu > APIs & Services > Credentials.
+
+2. Click Create credentials and select API key.
+
+Task 2. Make an entity analysis request and call the Natural Language API
+--------------------------------------------------------------------------
+SSH to the VM instance
+
+export VM=
+export ZONE=
+
+gcloud compute ssh $VM --zone $ZONE
+
+export PROJECT_ID=$(gcloud config get-value project)
+export API_KEY=$(gcloud alpha services api-keys get-key-string "API key 1")
+
+cat > nl_request.json <<EOF
+{
+  "document":{
+    "type":"PLAIN_TEXT",
+    "content":"With approximately 8.2 million people residing in Boston, the capital city of Massachusetts is one of the largest in the United States."
+  },
+  "encodingType":"UTF8"
+}
+EOF
+
+curl -s -H "Content-Type: application/json" \
+-H "Authorization: Bearer $(gcloud auth print-access-token)" \
+"https://language.googleapis.com/v1/documents:analyzeEntities?key=${API_KEY}" \
+-d @nl_request.json > nl_response.json
+
+
+
+Task 3. Create a speech analysis request and call the Speech API
+------------------------------------------------------------------
+cat > speech_request.json <<EOF
+{
+  "config": {
+      "encoding":"FLAC",
+      "languageCode": "en-US"
+  },
+  "audio": {
+      "uri":"gs://cloud-samples-tests/speech/brooklyn.flac"
+  }
+}
+EOF
+
+curl -s -H "Content-Type: application/json" -H "Authorization: Bearer $(gcloud auth print-access-token)" "https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" -d @speech_request.json > speech_response.json
+
+
+Task 4. Analyze sentiment with the Natural Language API
+----------------------------------------------------------
+gsutil cp gs://cloud-samples-tests/natural-language/sentiment-samples.tgz .
+
+gunzip sentiment-samples.tgz
+tar -xvf sentiment-samples.tar
+
+python3 sentiment_analysis.py reviews/bladerunner-pos.txt
 
