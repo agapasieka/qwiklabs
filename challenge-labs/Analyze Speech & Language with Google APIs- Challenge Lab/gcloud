@@ -4,10 +4,12 @@ gcloud services enable apikeys.googleapis.com
 
 gcloud alpha services api-keys create --display-name="API key 1"
 
+  If 'Check my progress' won't turn green follow the steps to create API key in console
+  -------------------------------------------------------------------------------------
+  1. To create an API key, in the Cloud Console, select Navigation menu > APIs & Services > Credentials.
 
-1. To create an API key, in the Cloud Console, select Navigation menu > APIs & Services > Credentials.
+  2. Click Create credentials and select API key.
 
-2. Click Create credentials and select API key.
 
 Task 2. Make an entity analysis request and call the Natural Language API
 --------------------------------------------------------------------------
