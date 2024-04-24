@@ -1,0 +1,122 @@
+Task 1. Create a Cloud Function
+---------------------------------------
+export REGION=
+export PROJECT_ID=$(gcloud config get-value project)
+
+cat <<EOF > index.js
+const functions = require('@google-cloud/functions-framework');
+
+functions.http('helloHttp', (req, res) => {
+  res.send(`Hello ${req.query.name || req.body.name || 'World'}!`);
+});
+EOF
+
+cat <<EOF > package.json
+{
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.0.0"
+  }
+}
+EOF
+
+gcloud functions deploy GCFunction --gen2 --entry-point=helloHttp --runtime nodejs20 --trigger-http --allow-unauthenticated --region $REGION --max-instances=5
+
+
+
+Task 2. Create an API Gateway
+---------------------------------
+Enable API
+----------
+gcloud services enable apigateway.googleapis.com 
+
+Create the API definition
+--------------------------
+cat <<EOF > openapispec.yaml
+swagger: '2.0'
+info:
+  title: GCFunction API
+  description: Sample API on API Gateway with a Google Cloud Functions backend
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+paths:
+  /GCFunction:
+    get:
+      summary: gcfunction
+      operationId: gcfunction
+      x-google-backend:
+        address: https://$REGION-$PROJECT_ID.cloudfunctions.net/GCFunction
+      responses:
+       '200':
+          description: A successful response
+          schema:
+            type: string
+EOF
+
+
+Create API Gateway
+--------------------
+
+export API_ID=gcfunction-api
+export PROJECT_NO=$(gcloud projects list --filter="$(gcloud config get-value project)" --format="value(PROJECT_NUMBER)")
+
+
+gcloud api-gateway api-configs create gcfunction-api --api $API_ID --openapi-spec=openapispec.yaml --backend-auth-service-account=$PROJECT_NO-compute@developer.gserviceaccount.com 
+
+gcloud api-gateway gateways create gcfunction-api-gw --api=gcfunction-api --api-config=gcfunction-api --location $REGION --display-name="GCFunction API"
+
+
+
+
+Task 3. Create a Pub/Sub Topic and Publish Messages via API Backend
+--------------------------------------------------------------------
+gcloud pubsub topics create demo-topic
+
+cat <<EOF > package.json
+{
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.0.0",
+    "@google-cloud/pubsub": "^3.4.1"
+  }
+}
+EOF
+
+cat <<EOF > index.js
+/**
+ * Responds to any HTTP request.
+ *
+ * @param {!express:Request} req HTTP request context.
+ * @param {!express:Response} res HTTP response context.
+ */
+const {PubSub} = require('@google-cloud/pubsub');
+const pubsub = new PubSub();
+const topic = pubsub.topic('demo-topic');
+const functions = require('@google-cloud/functions-framework');
+
+exports.helloHttp = functions.http('helloHttp', (req, res) => {
+
+  // Send a message to the topic
+  topic.publishMessage({data: Buffer.from('Hello from Cloud Functions!')});
+  res.status(200).send("Message sent to Topic demo-topic!");
+});
+EOF
+
+
+Redeploy the Cloud Function 
+-----------------------------
+gcloud functions deploy GCFunction --gen2 --entry-point=helloHttp --runtime nodejs20 --trigger-http --allow-unauthenticated --region $REGION --max-instances=5
+
+
+Invoke the Cloud Function via API Gateway
+-------------------------------------------
+export GATEWAY_URL=$(gcloud api-gateway gateways describe gcfunction-api-gw --location $REGION --format json | jq -r .defaultHostname)
+
+echo $GATEWAY_URL
+
+curl -s -w "\n" https://$GATEWAY_URL/GCFunction
+Message sent to Topic demo-topic!
+
+
+
