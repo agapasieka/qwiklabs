@@ -1,0 +1,49 @@
+Task 1. Clean and validate data
+-------------------------------
+
+Click on B2 Cell and use below function 
+=PROPER(A2)
+
+Click on E2 Cell and use below function
+=ISEMAIL(E2)
+
+
+Task 2. Organize and find data
+------------------------------
+
+Click on I2 cell and use below function 
+=SUBSTITUTE(H2,"Oct-5","Oct-10")
+
+
+Click on A18 cell and use below function 
+=VLOOKUP(A2, A2:E16, 5, False)
+
+
+Task 3. Create a chart
+------------------------
+
+Select Role Column -> Insert -> Chart
+
+Open New Google slides and name it Staff Roles.
+
+Click on Insert -> Chart -> From Sheets
+
+
+Task 4. Calculate descriptive statistics
+----------------------------------------
+
+=AVERAGE(C2:C101)
+
+=MEDIAN(C2:C101)
+
+=MAX(c2:c101)-MIN(c2:c101)
+
+=STDEV(C2:C101)
+
+
+Task 5. Create a pivot table
+------------------------------
+
+From Customer Ratings sheet -> Insert -> Pivot table 
+
+In Data range: 'Customer Ratings'!A1:C101 and create New sheet
