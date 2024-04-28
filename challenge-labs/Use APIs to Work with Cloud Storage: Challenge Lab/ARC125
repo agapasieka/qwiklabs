@@ -1,0 +1,62 @@
+Task 1. Create two Cloud Storage buckets
+-----------------------------------------
+
+cat > bucket-1.json <<EOF
+{  
+   "name": "$DEVSHELL_PROJECT_ID-bucket-1",
+   "location": "us",
+   "storageClass": "multi_regional"
+}
+EOF
+
+curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json" --data-binary @bucket-1.json "https://storage.googleapis.com/storage/v1/b?project=$DEVSHELL_PROJECT_ID"
+
+
+cat > bucket-2.json <<EOF
+{  
+   "name": "$DEVSHELL_PROJECT_ID-bucket-2",
+   "location": "us",
+   "storageClass": "multi_regional"
+}
+EOF
+
+curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json" --data-binary @bucket-2.json "https://storage.googleapis.com/storage/v1/b?project=$DEVSHELL_PROJECT_ID"
+
+Task 2. Upload an image file to a Cloud Storage Bucket
+------------------------------------------------------
+
+wget https://storage.googleapis.com/cloud-training/gsp315/map.jpg
+
+curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: image/jpeg" --data-binary @map.jpg "https://storage.googleapis.com/upload/storage/v1/b/$DEVSHELL_PROJECT_ID-bucket-1/o?uploadType=media&name=map.jpg"
+
+
+
+Task 3. Copy a file to another bucket
+---------------------------------------
+
+curl -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json" --data '{"destination": "$DEVSHELL_PROJECT_ID-bucket-2"}' "https://storage.googleapis.com/storage/v1/b/$DEVSHELL_PROJECT_ID-bucket-1/o/map.jpeg/copyTo/b/$DEVSHELL_PROJECT_ID-bucket-2/o/map.jpg"
+
+
+
+
+Task 4. Make an object (file) publicly accessible
+--------------------------------------------------
+
+cat > public_access.json <<EOF
+{
+  "entity": "allUsers",
+  "role": "READER"
+}
+EOF
+
+
+curl -X POST --data-binary @public_access.json -H "Authorization: Bearer $(gcloud auth print-access-token)" -H "Content-Type: application/json" "https://storage.googleapis.com/storage/v1/b/$DEVSHELL_PROJECT_ID-bucket-1/o/map.jpg/acl"
+
+
+Task 5. Delete the object file and a Cloud Storage bucket (Bucket 1)
+--------------------------------------------------------------------
+
+curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" "https://storage.googleapis.com/storage/v1/b/$DEVSHELL_PROJECT_ID-bucket-1/o/map.jpg"
+
+curl -X DELETE -H "Authorization: Bearer $(gcloud auth print-access-token)" "https://storage.googleapis.com/storage/v1/b/$DEVSHELL_PROJECT_ID-bucket-1"
+
