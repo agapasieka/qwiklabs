@@ -1,0 +1,40 @@
+Task 1. Query BigQuery and log the results to Google Sheets
+------------------------------------------------------------
+open script.google.com and name project bigquery
+
+ Rename open.gs to bq-sheets-slides.gs
+
+
+
+Task 2. Perform calculations on charts with Connected Sheets
+-------------------------------------------------------------
+Find out how many taxi companies there are in Chicago.
+
+Click function and apply below 
+=COUNTUNIQUE(taxi_trips!company)
+
+Find the percentage of taxi rides in Chicago that included a tip.
+
+Click function and apply below
+=COUNTIF(taxi_trips!tips,">0")
+
+
+Find the total number of trips where the fare was greater than 0.
+
+Click function and apply below
+=COUNTIF(taxi_trips!fare,">0")
+
+
+
+Task 3. Use Google Charts with Connected Sheets
+------------------------------------------------
+Insert Pie chart -> Label: payment_type -> Value: fare -> Count -> Apply
+
+Insert Line chart -> X-axis: trip_start_timestamp -> tick Group by Year-Month -> Series: fare -> Filter: Add payment_type -> Click on the Filter by Condition dropdown and select Text contains from the list -> Input mobile in the Value field
+
+
+
+Task 4. Use Apps Script to create a new Google Sheets worksheet and enter data
+-------------------------------------------------------------------------------
+
+Follow lab steps
