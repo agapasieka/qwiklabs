@@ -1,0 +1,61 @@
+Task 1. Create a Cloud Storage bucket
+---------------------------------------
+
+export REGION=
+export PROJECT_ID=$(gcloud config get-value project)
+
+
+gsutil mb -l $REGION gs://$PROJECT_ID
+
+
+
+Task 2. Create a BigQuery dataset and table
+-------------------------------------------
+
+export DATASET=
+export TABLE=
+
+bq mk $DATASET
+
+bq mk --table \
+$DEVSHEL_PROJECT_ID:$DATASET.$TABLE \
+data:string
+
+
+Task 3. Set up a Pub/Sub topic
+--------------------------------
+
+export TOPIC_NAME=
+export SUBSCRIPTION=$TOPIC_NAME-sub
+
+gcloud pubsub topics create $TOPIC_NAME 
+
+gcloud pubsub subscriptions create $SUBSCRIPTION --topic  $TOPIC_NAME --topic-project=$PROJECT_ID
+
+
+Task 4. Run a Dataflow pipeline to stream data from Pub/Sub to BigQuery
+------------------------------------------------------------------------
+
+gcloud services disable dataflow.googleapis.com
+gcloud services enable dataflow.googleapis.com
+
+export DATAFLOW_JOB=
+
+
+gcloud dataflow jobs run $DATAFLOW_JOB --gcs-location gs://dataflow-templates-$REGION/latest/PubSub_to_BigQuery --region $REGION --staging-location gs://$DEVSHELL_PROJECT_ID/temp --parameters inputTopic=projects/$DEVSHELL_PROJECT_ID/topics/$TOPIC_NAME,outputTableSpec=$DEVSHELL_PROJECT_ID:$DATASET.$TABLE
+
+
+Task 5. Publish a test message to the topic and validate data in BigQuery
+--------------------------------------------------------------------------
+
+gcloud pubsub topics publish $TOPIC_NAME --message='{"data": "73.4 F"}'
+
+** Wait few minutes for the dataflow jobs to stream message to bigquery, then run below in Cloud Shell 
+
+bq query --use_legacy_sql=false "
+SELECT
+ *
+FROM
+ \`$DATASET.$TABLE\` 
+ LIMIT 10;
+"
