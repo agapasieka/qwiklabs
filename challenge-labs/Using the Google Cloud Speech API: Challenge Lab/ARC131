@@ -1,0 +1,64 @@
+Task 1. Create an API key
+---------------------------
+
+1. To create an API key, in the Cloud Console, select Navigation menu -> APIs & Services -> Credentials.
+
+2. Click Create credentials and select API key.
+
+
+
+Task 2. Transcribe speech to English text
+------------------------------------------
+
+SSH to the VM instance
+
+export VM=
+export ZONE=
+
+gcloud compute ssh $VM --zone $ZONE
+
+export PROJECT_ID=$(gcloud config get-value project)
+export API_KEY=
+
+
+export req_file_1=
+export resp_file_1=
+
+cat > "$req_file_1" <<EOF
+{
+  "config": {
+    "encoding": "LINEAR16",
+    "languageCode": "en-US",
+    "audioChannelCount": 2
+  },
+  "audio": {
+    "uri": "gs://spls/arc131/question_en.wav"
+  }
+}
+EOF
+
+curl -s -X POST -H "Content-Type: application/json" --data-binary @"$req_file_1" \
+"https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" > "$resp_file_1"
+
+
+Task 3. Transcribe speech to Spanish text
+-------------------------------------------
+
+export req_file_2=
+export resp_file_2=
+
+cat > "$req_file_2" <<EOF
+{
+  "config": {
+    "encoding": "FLAC",
+    "languageCode": "es-ES"
+  },
+  "audio": {
+    "uri": "gs://spls/arc131/multi_es.flac"
+  }
+}
+EOF
+
+
+curl -s -X POST -H "Content-Type: application/json" --data-binary @"$req_file_2" \
+"https://speech.googleapis.com/v1/speech:recognize?key=${API_KEY}" > "$resp_file_2"
