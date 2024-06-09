@@ -4,12 +4,13 @@ Task 2. Create a VPC network and VM instances
 gcloud compute networks create mynetwork --subnet-mode auto
 
 export REGION1=
+
 export REGION2=
+
 export ZONE1=
+
 export ZONE2=
 
-Create a VM instance in REGION1
---------------------------------
 
 gcloud compute instances create mynet-us-vm \
 --zone $ZONE1 \
