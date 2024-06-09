@@ -43,8 +43,8 @@ gcloud beta compute instance-groups managed create instance-group-1 \
     --default-action-on-vm-failure=repair \
     --no-force-update-on-repair \
     --standby-policy-mode=manual \
-    --list-managed-instances-results=PAGELESS \
-&& \
+    --list-managed-instances-results=PAGELESS 
+
 gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
     --project=$PROJECT_ID \
     --zone=$ZONE1 \
@@ -56,16 +56,16 @@ gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
 
 gcloud beta compute instance-groups managed create instance-group-2 \
     --project=$PROJECT_ID \
-    --base-instance-name=instance-group-1 \
-    --template=projects/$PROJECT_ID/global/instanceTemplates/instance-template-1 \
+    --base-instance-name=instance-group-2 \
+    --template=projects/$PROJECT_ID/global/instanceTemplates/instance-template-2 \
     --size=1 \
     --zone=$ZONE2 \
     --default-action-on-vm-failure=repair \
     --no-force-update-on-repair \
     --standby-policy-mode=manual \
-    --list-managed-instances-results=PAGELESS \
-&& \
-gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
+    --list-managed-instances-results=PAGELESS 
+
+gcloud beta compute instance-groups managed set-autoscaling instance-group-2 \
     --project=$PROJECT_ID \
     --zone=$ZONE2 \
     --mode=on \
@@ -82,7 +82,7 @@ gcloud compute instances create utility-vm \
 --zone=$ZONE1 \
 --machine-type=e2-micro \
 --network-interface=network-tier=PREMIUM,private-network-ip=10.10.20.50,stack-type=IPV4_ONLY,subnet=subnet-a \
---create-disk=auto-delete=yes,boot=yes,device-name=utility-vm,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240515,mode=rw,size=10,type=projects/$PROJECT_ID/zones/$ZONE/diskTypes/pd-balanced
+--create-disk=auto-delete=yes,boot=yes,device-name=utility-vm,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240515,mode=rw,size=10,type=projects/$PROJECT_ID/zones/$ZONE1/diskTypes/pd-balanced
 
 
 
