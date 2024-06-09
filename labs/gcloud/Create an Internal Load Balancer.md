@@ -74,7 +74,7 @@ gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
 
 
 Verify the backends
---------------------
+
 gcloud compute instances create utility-vm \
 --zone=$ZONE \
 --machine-type=e2-micro \
