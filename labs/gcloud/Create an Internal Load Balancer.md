@@ -10,8 +10,11 @@ Task 2. Configure instance templates and create instance groups
 -----------------------------------------------------------------
 
 export REGION=
-export ZONE=
+
+export ZONE1=
+
 export ZONE2=
+
 export PROJECT_ID=$(gcloud config get-value project)
 
 gcloud compute instance-templates create instance-template-1 \
@@ -36,7 +39,7 @@ gcloud beta compute instance-groups managed create instance-group-1 \
     --base-instance-name=instance-group-1 \
     --template=projects/$PROJECT_ID/global/instanceTemplates/instance-template-1 \
     --size=1 \
-    --zone=$ZONE \
+    --zone=$ZONE1 \
     --default-action-on-vm-failure=repair \
     --no-force-update-on-repair \
     --standby-policy-mode=manual \
@@ -44,7 +47,7 @@ gcloud beta compute instance-groups managed create instance-group-1 \
 && \
 gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
     --project=$PROJECT_ID \
-    --zone=$ZONE \
+    --zone=$ZONE1 \
     --mode=on \
     --min-num-replicas=1 \
     --max-num-replicas=5 \
@@ -64,7 +67,7 @@ gcloud beta compute instance-groups managed create instance-group-2 \
 && \
 gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
     --project=$PROJECT_ID \
-    --zone=$ZONE \
+    --zone=$ZONE2 \
     --mode=on \
     --min-num-replicas=1 \
     --max-num-replicas=5 \
@@ -76,7 +79,7 @@ gcloud beta compute instance-groups managed set-autoscaling instance-group-1 \
 Verify the backends
 
 gcloud compute instances create utility-vm \
---zone=$ZONE \
+--zone=$ZONE1 \
 --machine-type=e2-micro \
 --network-interface=network-tier=PREMIUM,private-network-ip=10.10.20.50,stack-type=IPV4_ONLY,subnet=subnet-a \
 --create-disk=auto-delete=yes,boot=yes,device-name=utility-vm,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240515,mode=rw,size=10,type=projects/$PROJECT_ID/zones/$ZONE/diskTypes/pd-balanced
