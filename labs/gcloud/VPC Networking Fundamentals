@@ -12,15 +12,13 @@ Create a VM instance in REGION1
 --------------------------------
 
 gcloud compute instances create mynet-us-vm \
---region $REGION1 \
 --zone $ZONE1 \
---machine-type e2-micro \
+--machine-type e2-micro
 
 
 gcloud compute instances create mynet-second-vm \
---region $REGION2 \
 --zone $ZONE2 \
---machine-type e2-micro \
+--machine-type e2-micro 
 
 
 
