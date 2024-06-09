@@ -13,12 +13,14 @@ Create a VM instance in REGION1
 
 gcloud compute instances create mynet-us-vm \
 --zone $ZONE1 \
---machine-type e2-micro
+--machine-type e2-micro \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=mynetwork
 
 
 gcloud compute instances create mynet-second-vm \
 --zone $ZONE2 \
---machine-type e2-micro 
+--machine-type e2-micro \
+--network-interface=network-tier=PREMIUM,stack-type=IPV4_ONLY,subnet=mynetwork
 
 
 
