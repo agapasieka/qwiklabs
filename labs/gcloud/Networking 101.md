@@ -2,10 +2,15 @@ Set your region and zone
 ---------------------------
 
 export REGION1=
+
 export REGION2=
+
 export REGION3=
+
 export ZONE1=
+
 export ZONE2=
+
 export ZONE3=
 
 Task 4. Create custom network with Cloud Shell
