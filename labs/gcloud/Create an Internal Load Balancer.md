@@ -18,12 +18,12 @@ export ZONE2=
 export PROJECT_ID=$(gcloud config get-value project)
 
 gcloud compute instance-templates create instance-template-1 \
---machine-type=e2-medium \
---network-interface=network-tier=PREMIUM,subnet=subnet-a \
---metadata=startup-script-url=gs://cloud-training/gcpnet/ilb/startup.sh,enable-oslogin=true \
---region=$REGION \
---tags=lb-backend \
---create-disk=auto-delete=yes,boot=yes,device-name=instance-template-1,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240515,mode=rw,size=10,type=pd-balanced 
+  --machine-type=e2-medium \
+  --network-interface=network-tier=PREMIUM,subnet=subnet-a \
+  --metadata=startup-script-url=gs://cloud-training/gcpnet/ilb/startup.sh,enable-oslogin=true \
+  --region=$REGION \
+  --tags=lb-backend \
+  --create-disk=auto-delete=yes,boot=yes,device-name=instance-template-1,image=projects/debian-cloud/global/images/debian-12-bookworm-v20240515,mode=rw,size=10,type=pd-balanced 
 
 gcloud compute instance-templates create instance-template-2 \
 --machine-type=e2-medium \
