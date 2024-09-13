@@ -1,74 +1,36 @@
-Task 1
-Create a Cloud Storage bucket
-Sign into the project as User 1
-Create a regional Cloud Storage bucket using the following bucket name:[PROJECT-ID]-bucket and replace the PROJECT_ID in the bucket name with the project ID provided at the left side of the lab instructions.
-Use the same bucket you have created in the above step to attach as an asset to the zone
+#All possible tasks: 
 
+Task 1: Create a Cloud Storage bucket
 
+Task 2: Create a lake in Dataplex and add a zone to your lake
 
-Task 2
-Create a lake in Dataplex and add a zone to your lake
-Sign into the project as User 2
-Create a lake in Dataplex using the below information:
+Task 3: Environment Creation for Dataplex Lake
 
-Property	Value
-Display Name	Customer-Lake
-ID	Leave the default value.
-Region	Region from the Lab Details panel which is located at the left side of the lab instructions
-Add a zone to your lake:Customer-Lake. Use the information below:
+Task 4: Create a tag template "customer_data_tag_template"
 
-Display Name	Value
-Display Name	Public-Zone
-ID	Leave the default value.
-Type	Raw zone
-Data locations	Regional
-Discovery settings	Enable metadata discovery
-For the Lables set key_1 as: domain_type and value_1 as: source_data
+Task 5: Attach an existing Cloud Storage bucket to the zone
 
+Task 6: Create a BigQuery dataset
 
+Task 7. Add a zone to your lake
 
+Task 8. Attach an existing BigQuery Dataset to the Lake
 
+Task 9: Create a tag template "protected_data_template"
 
-Task 3
-Environment Creation for Dataplex Lake
-Navigate to the lake:Customer-Lake and create an environment for the lake
-Use the below configuration for the environment creation
-Property	Value
-Display Name	Dataplex-lake-env
-Configure Compute	Number of nodes= 3
-Enable auto shut-down
-Software Package	Leave the default value
-This will create the environment which we would be using while exploring the data.
-Note: Based on the volume of data being analyzed and the complexity of operations while analyzing the data, we can configure the environment by increasing/decreasing the number of nodes, space on disk, Auto Scaling etc.
+Task 10. Create Entities
 
-
-
-
-Task 4
-Create a tag template
-To begin tagging data, an asset must be added to the zone . A tag template is a reusable structure that can be used to swiftly create new tags. You are required to structure the tags by topic using tag templates. Therefore, in this task you must create a tag template and attach a tag template to an asset and related fields as detailed in the following table.
-Tag template name	Tag template ID	Location	Fields	Type
-Customer Data Tag Template	customer_data_tag_template	Use the default region	Data Owner	String
-PII Data	Enumurated
-Value 1: Yes
-Value 2: No
-
-Therefore, attach a tag to the Storage bucket Data Catalog entry under the `CLOUD STORAGE` source system. Use the Customer Data Tag Template template to tag this entry, and provide the values for the tag fields provided in the following table.
-
-Therefore, attach a tag to the Storage bucket Data Catalog entry under the `CLOUD STORAGE` source system. Use the Customer Data Tag Template template to tag this entry, and provide the values for the tag fields provided in the following table.
-
-Tag field	Value
-Data Owner	Enter your name here
-PII Data	Yes
-
-Search for assets using a Tag Template: Customer Data Tag Template
-
+------------------------------------------------------------------------------------------------
 export REGION=
 export ZONE=
+
+
+Task1:
+gsutil mb -p $DEVSHELL_PROJECT_ID -l $REGION -b on gs://$DEVSHELL_PROJECT_ID-bucket/
+
+Task2:
 export KEY_1=domain_type
 export VALUE_1=source_data
-
-gsutil mb -p $DEVSHELL_PROJECT_ID -l $REGION -b on gs://$DEVSHELL_PROJECT_ID-bucket/
 
 gcloud alpha dataplex lakes create customer-lake \
 --display-name="Customer-Lake" \
@@ -82,12 +44,36 @@ gcloud dataplex zones create public-zone \
     --resource-location-type=SINGLE_REGION \
     --display-name="Public-Zone"
 
+Task3:
 gcloud dataplex environments create dataplex-lake-env \
            --project=$DEVSHELL_PROJECT_ID --location=$REGION --lake=customer-lake \
            --os-image-version=1.0 --compute-node-count 3  --compute-max-node-count 3
 
+Task4:
 gcloud data-catalog tag-templates create customer_data_tag_template \
     --location=$REGION \
     --display-name="Customer Data Tag Template" \
     --field=id=data_owner,display-name="Data Owner",type=string,required=TRUE \
     --field=id=pii_data,display-name="PII Data",type='enum(Yes|No)',required=TRUE
+
+Task5:
+gcloud dataplex assets create customer-raw-data --project=$DEVSHELL_PROJECT_ID --location=$REGION --lake=customer-lake --zone=public-zone --resource-type=STORAGE_BUCKET --resource-name=projects/$DEVSHELL_PROJECT_ID/buckets/$DEVSHELL_PROJECT_ID-customer-bucket --discovery-enabled --display-name="Customer Raw Data"
+
+gcloud dataplex assets create customer-reference-data --project=$DEVSHELL_PROJECT_ID --location=$REGION --lake=customer-lake --zone=public-zone --resource-type=BIGQUERY_DATASET --resource-name=projects/$DEVSHELL_PROJECT_ID/datasets/customer_reference_data --display-name="Customer Reference Data"
+
+Task6:
+bq mk --location=US Raw_data
+
+bq load --source_format=AVRO Raw_data.public-data gs://spls/gsp1145/users.avro
+
+Task7:
+gcloud dataplex zones create temperature-raw-data --project=$DEVSHELL_PROJECT_ID --lake=public-lake --location=$REGION --type=RAW --resource-location-type=SINGLE_REGION --display-name="temperature-raw-data"
+
+Task8:
+gcloud dataplex assets create customer-details-dataset --project=$DEVSHELL_PROJECT_ID --location=$REGION --lake=public-lake --zone=temperature-raw-data --resource-type=BIGQUERY_DATASET --resource-name=projects/$DEVSHELL_PROJECT_ID/datasets/customer_reference_data --discovery-enabled --display-name="Customer Details Dataset"
+
+Task9:
+gcloud data-catalog tag-templates create protected_data_template --project=$DEVSHELL_PROJECT_ID --location=$REGION --display-name="Protected Data Template" --field=id=protected_data_flag,display-name="Protected Data Flag",type='enum(Yes|No)',required=TRUE
+
+Task10:
+gcloud dataplex assets create customer-reference-data --project=$DEVSHELL_PROJECT_ID --location=$REGION --zone=public-zone --resource-type=BIGQUERY_DATASET --lake=customer-lake --resource-name=projects/$DEVSHELL_PROJECT_ID/datasets/customer_reference_data --display-name="Customer Reference Data"
