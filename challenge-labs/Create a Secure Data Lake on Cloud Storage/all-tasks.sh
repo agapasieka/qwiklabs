@@ -57,7 +57,8 @@ task_7() {
 
 # Function to run Task 8
 task_8() {
-
+    
+    gcloud dataplex zones create public-zone --project=$DEVSHELL_PROJECT_ID --lake=customer-lake --location=$REGION --type=RAW --resource-location-type=SINGLE_REGION --display-name="Public-Zone"
     gcloud dataplex assets create customer-details-dataset --project=$DEVSHELL_PROJECT_ID --location=$REGION --lake=public-lake --zone=temperature-raw-data --resource-type=BIGQUERY_DATASET --resource-name=projects/$DEVSHELL_PROJECT_ID/datasets/customer_reference_data --discovery-enabled --display-name="Customer Details Dataset"
     echo "Asset has been created"    
 }
